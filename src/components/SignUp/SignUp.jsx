@@ -1,20 +1,30 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../../firebase.init";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const SignUp = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignUp = (e) => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
-    console.log(email, password);
+    const terms = e.target.terms.checked;
+
+    console.log(email, password, terms);
 
     // reset the error message
     setSuccess(false);
     setErrorMessage("");
+
+    // terms
+    if (!terms) {
+      setErrorMessage("You have not accepted our terms and condition.");
+    }
 
     // password validation
     if (password.length < 6) {
@@ -61,21 +71,39 @@ const SignUp = () => {
             required
           />
         </div>
-        <div className="form-control">
+        <div className="form-control relative">
           <label className="label">
             <span className="label-text">Password</span>
           </label>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
             placeholder="password"
             className="input input-bordered"
             required
           />
+          <button
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-12"
+          >
+            {showPassword ? <FaEyeSlash></FaEyeSlash> : <FaEye></FaEye>}
+          </button>
           <label className="label">
             <a href="#" className="label-text-alt link link-hover">
               Forgot password?
             </a>
+          </label>
+        </div>
+        <div className="form-control">
+          <label className="cursor-pointer justify-start label">
+            <input
+              type="checkbox"
+              name="terms"
+              className="checkbox checkbox-error"
+            />
+            <span className="label-text ml-2">
+              Accept our terms and condition.
+            </span>
           </label>
         </div>
         <div className="form-control mt-6">
@@ -84,6 +112,12 @@ const SignUp = () => {
       </form>
       {errorMessage && <p className="text-red-500">{errorMessage} </p>}
       {success && <p className="text-green-600">Sign up is Successful</p>}
+      <p>
+        Already have an account?
+        <Link to="/login" className="underline">
+          Login
+        </Link>
+      </p>
     </div>
   );
 };
