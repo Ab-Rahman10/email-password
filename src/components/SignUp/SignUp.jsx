@@ -1,4 +1,8 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  updateProfile,
+} from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../../firebase.init";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -13,9 +17,11 @@ const SignUp = () => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
+    const name = e.target.name.value;
+    const photoURL = e.target.photoURL.value;
     const terms = e.target.terms.checked;
 
-    console.log(email, password, terms);
+    console.log(email, password, name, photoURL, terms);
 
     // reset the error message
     setSuccess(false);
@@ -47,6 +53,20 @@ const SignUp = () => {
       .then((result) => {
         console.log(result.user);
         setSuccess(true);
+
+        //Send verification email
+        sendEmailVerification(auth.currentUser).then(() => {
+          console.log("Email verification sent");
+        });
+
+        // Update profile
+        const profile = {
+          displayName: name,
+          photoURL: photoURL,
+        };
+        updateProfile(auth.currentUser, profile).then(() => {
+          console.log("User profile updated");
+        });
       })
       .catch((error) => {
         console.log("Error", error.message);
@@ -59,6 +79,30 @@ const SignUp = () => {
     <div className="w-1/2 mx-auto  ">
       <h2 className="text-2xl font-semibold text-center">Sign Up</h2>
       <form onSubmit={handleSignUp} className="card-body">
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Name</span>
+          </label>
+          <input
+            type="text"
+            name="name"
+            placeholder="name"
+            className="input input-bordered"
+            required
+          />
+        </div>
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Photo</span>
+          </label>
+          <input
+            type="text"
+            name="photoURL"
+            placeholder="PhotoURL"
+            className="input input-bordered"
+            required
+          />
+        </div>
         <div className="form-control">
           <label className="label">
             <span className="label-text">Email</span>
@@ -107,7 +151,7 @@ const SignUp = () => {
           </label>
         </div>
         <div className="form-control mt-6">
-          <button className="btn btn-accent btn-wide">Login</button>
+          <button className="btn btn-accent btn-wide">Sign Up</button>
         </div>
       </form>
       {errorMessage && <p className="text-red-500">{errorMessage} </p>}
